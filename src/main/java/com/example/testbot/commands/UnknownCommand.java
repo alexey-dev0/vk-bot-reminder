@@ -1,11 +1,11 @@
-package com.example.testbot.command;
+package com.example.testbot.commands;
 
 import com.example.testbot.VKManager;
 import com.vk.api.sdk.objects.messages.Message;
 
-public class Unknown extends Command {
+public class UnknownCommand extends Command {
 
-    public Unknown(String name) {
+    public UnknownCommand(String name) {
         super(name);
     }
 

@@ -1,18 +1,21 @@
 package com.example.testbot;
 
+import com.example.testbot.models.Reminder;
+import com.example.testbot.services.ReminderService;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.objects.messages.Message;
 
+import java.sql.Timestamp;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class VKServer {
 
-    public static DBController db;
+    public static ReminderService reminderService;
 
     static {
-        db = new DBController();
+        reminderService = new ReminderService();
     }
 
     private static VKCore vkCore;
@@ -25,24 +28,38 @@ public class VKServer {
         }
     }
 
-    public static void main(String[] args) throws NullPointerException, ApiException, InterruptedException {
+    private static DBObserver dbObserver;
 
-        System.out.println("Запуск сервера...");
+    static {
+        dbObserver = new DBObserver();
+    }
 
+    public static void main(String[] args) {
         while (true) {
-            Thread.sleep(300);
             try {
+                // Пауза между запросами
+                Thread.sleep(300);
+
+                // Получаем ответ и если есть сообщение обрабатываем
                 Message message = vkCore.getMessage();
                 if (message != null) {
                     ExecutorService exec = Executors.newCachedThreadPool();
                     exec.execute(new Messenger(message));
                 }
-                Executors.newCachedThreadPool().execute(new DBObserver());
-            } catch (ClientException e) {
-                System.out.println("Возникли проблемы");
+
+                // Осматриваем БД на случай наступления времени напоминания
+                dbObserver.run();
+
+            } catch (ClientException | InterruptedException | ApiException e) {
+                System.out.println("Возникли проблемы: " + e.getMessage());
                 final int RECONNECT_TIME = 10000;
                 System.out.println("Повторное соединение через " + RECONNECT_TIME / 1000 + " секунд");
-                Thread.sleep(RECONNECT_TIME);
+                try {
+                    Thread.sleep(RECONNECT_TIME);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
             }
         }
     }

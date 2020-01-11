@@ -1,4 +1,4 @@
-package com.example.testbot.command;
+package com.example.testbot.commands;
 
 import com.vk.api.sdk.objects.messages.Message;
 

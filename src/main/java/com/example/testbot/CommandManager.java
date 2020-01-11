@@ -1,9 +1,6 @@
 package com.example.testbot;
 
-import com.example.testbot.command.Command;
-import com.example.testbot.command.Greetings;
-import com.example.testbot.command.Reminder;
-import com.example.testbot.command.Unknown;
+import com.example.testbot.commands.*;
 
 import java.util.HashSet;
 
@@ -11,9 +8,10 @@ public class CommandManager {
     private static HashSet<Command> commands = new HashSet<>();
 
     static {
-        commands.add(new Unknown("unknown"));
-        commands.add(new Greetings("hello"));
-        commands.add(new Reminder("reminder"));
+        commands.add(new UnknownCommand("unknown"));
+        commands.add(new GreetingCommand("hello"));
+        commands.add(new ReminderCommand("reminder"));
+        commands.add(new ListCommand("rlist"));
     }
 
     static HashSet<Command> getCommands() {

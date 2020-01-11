@@ -22,24 +22,26 @@ class VKCore {
     private GroupActor actor;
 
     VKCore() throws ClientException, ApiException {
+        // Инициализация клиента для работы с вк
         TransportClient transportClient = HttpTransportClient.getInstance();
         vk = new VkApiClient(transportClient);
 
         // Загрузка конфигураций
-
         Properties prop = new Properties();
-        int group_id;
-        String access_token;
+        int groupId;
+        String accessToken;
         try {
             prop.load(new FileInputStream("src/main/resources/app.properties"));
-            group_id = Integer.parseInt(prop.getProperty("vk.groupId"));
-            access_token = prop.getProperty("vk.accessToken");
-            actor = new GroupActor(group_id, access_token);
-            ts = vk.messages().getLongPollServer(actor).execute().getTs();
+            groupId = Integer.parseInt(prop.getProperty("vk.groupId"));
+            accessToken = prop.getProperty("vk.accessToken");
+            actor = new GroupActor(groupId, accessToken);
+            ts = vk.messages()
+                    .getLongPollServer(actor)
+                    .execute()
+                    .getTs();
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Ошибка при загрузке файла конфигурации");
-
         }
     }
 
@@ -59,8 +61,7 @@ class VKCore {
         if (maxMsgId > 0) {
             eventsQuery.maxMsgId(maxMsgId);
         }
-        List<Message> messages = eventsQuery
-                .execute()
+        List<Message> messages = eventsQuery.execute()
                 .getMessages()
                 .getMessages();
 
@@ -81,9 +82,9 @@ class VKCore {
              *   который является ограничением в API VK. В случае, если ts слишком старый (больше суток),
              *   а max_msg_id не передан, метод может вернуть ошибку 10 (Internal server error).
              */
-            int messageId = messages.get(0).getId();
-            if (messageId > maxMsgId) {
-                maxMsgId = messageId;
+            int msgId = messages.get(0).getId();
+            if (msgId > maxMsgId) {
+                maxMsgId = msgId;
             }
             return messages.get(0);
         }
