@@ -9,7 +9,7 @@ import java.util.Collection;
 class CommandDeterminant {
 
     static Command getCommand(Collection<Command> commands, Message message) {
-        String body = message.getBody();
+        String body = message.getText();
         for (Command command : commands) {
             if (command.check(body)) return command;
         }

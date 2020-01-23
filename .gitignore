@@ -1,2 +1,4 @@
 /src/main/resources/app.properties
 /target/
+*.ogg
+!/temp.ogg

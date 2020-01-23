@@ -4,8 +4,7 @@ import com.example.testbot.VKManager;
 import com.example.testbot.VKServer;
 import com.vk.api.sdk.objects.messages.Message;
 
-import javax.xml.crypto.dsig.Reference;
-import java.sql.*;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -40,7 +39,7 @@ public class ReminderCommand extends Command {
         final Pattern DATE_PATTERN = Pattern.compile("(([0-3][0-9]|[0-9])\\.([01][0-9]|[1-9])(.2[0-9]([2-9][0-9]|19))?)");
         final Pattern TIME_PATTERN = Pattern.compile("([0-1][0-9]|2[0-3]|[0-9]):[0-5][0-9]");
 
-        String content = message.getBody();
+        String content = message.getText();
 
         int msgIndex = 0;
         Matcher matcherDate = DATE_PATTERN.matcher(content);
@@ -72,14 +71,14 @@ public class ReminderCommand extends Command {
         Timestamp appointmentDate = makeTimestamp(year, month, day, hour, minute);
         String msg = content.substring(msgIndex + 1);
 
-        var newReminder = new com.example.testbot.models.Reminder(appointmentDate, message.getUserId(), msg);
+        var newReminder = new com.example.testbot.models.Reminder(appointmentDate, message.getPeerId(), msg);
         System.out.println("Добавление напоминания в БД...");
         VKServer.reminderService.saveReminder(newReminder);
     }
 
     @Override
     public void exec(Message message) {
-        String answer = "";
+        String answer;
         try {
             System.out.println("Создание нового напоминания...");
 
@@ -91,6 +90,6 @@ public class ReminderCommand extends Command {
             e.printStackTrace();
             answer = "Неверный формат даты. Попробуйте ещё раз.";
         }
-        new VKManager().sendMessage(answer, message.getUserId());
+        new VKManager().sendMessage(answer, message.getPeerId());
     }
 }

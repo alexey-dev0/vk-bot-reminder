@@ -1,6 +1,6 @@
 package com.example.testbot.commands;
 
-import com.example.testbot.VKManager;
+import com.example.testbot.VKServer;
 import com.vk.api.sdk.objects.messages.Message;
 
 public class GreetingCommand extends Command {
@@ -11,7 +11,7 @@ public class GreetingCommand extends Command {
 
     @Override
     public boolean check(String message) {
-        var greetWords = new String[] {
+        var greetWords = new String[]{
                 "привет",
                 "здравствуй",
                 "приветствую",
@@ -35,6 +35,9 @@ public class GreetingCommand extends Command {
 
     @Override
     public void exec(Message message) {
-        new VKManager().sendMessage("Привет, " + message.getUserId(), message.getUserId());
+        VKServer.sendVoiceMessage("Привет, "
+                        + VKServer.getUserName(message.getPeerId()) + "!",
+                message.getPeerId());
+        //new VKManager().sendMessage("Привет, " + message.getUserId(), message.getUserId());
     }
 }

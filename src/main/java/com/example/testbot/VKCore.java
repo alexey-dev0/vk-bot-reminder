@@ -53,41 +53,27 @@ class VKCore {
         return vk;
     }
 
-    Message getMessage() throws ClientException, ApiException {
+    List<Message> getMessages() throws ClientException, ApiException {
 
         MessagesGetLongPollHistoryQuery eventsQuery = vk.messages()
                 .getLongPollHistory(actor)
                 .ts(ts);
-        if (maxMsgId > 0) {
-            eventsQuery.maxMsgId(maxMsgId);
-        }
+
+        if (maxMsgId > 0) eventsQuery.maxMsgId(maxMsgId);
+
         List<Message> messages = eventsQuery.execute()
                 .getMessages()
-                .getMessages();
+                .getItems();
 
         if (!messages.isEmpty()) {
-            try {
-                ts = vk.messages()
-                        .getLongPollServer(actor)
-                        .execute()
-                        .getTs();
-            } catch (ClientException e) {
-                e.printStackTrace();
-            }
-        }
+            ts = vk.messages()
+                    .getLongPollServer(actor)
+                    .execute()
+                    .getTs();
 
-        if (!messages.isEmpty() && !messages.get(0).isOut()) {
-            /*
-             *   messageId - максимально полученный ID, нужен, чтобы не было ошибки 10 internal server error,
-             *   который является ограничением в API VK. В случае, если ts слишком старый (больше суток),
-             *   а max_msg_id не передан, метод может вернуть ошибку 10 (Internal server error).
-             */
-            int msgId = messages.get(0).getId();
-            if (msgId > maxMsgId) {
-                maxMsgId = msgId;
-            }
-            return messages.get(0);
+            messages.removeIf(x -> x.getFromId() < 0);
+            messages.forEach(x -> maxMsgId = Math.max(maxMsgId, x.getId()));
         }
-        return null;
+        return messages;
     }
 }

@@ -5,33 +5,33 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table (name = "reminders")
+@Table(name = "reminders")
 public class Reminder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column (name = "creation_date")
+    @Column(name = "creation_date")
     private Timestamp creationDate;
 
-    @Column (name = "appointment_date")
+    @Column(name = "appointment_date")
     private Timestamp appointmentDate;
 
-    @Column (name = "interval_date")
+    @Column(name = "interval_date")
     private Timestamp intervalDate;
 
     private boolean regular;
 
-    @Column (name = "user_id")
+    @Column(name = "user_id")
     private int userId;
 
     private String message;
 
-    private Reminder() { }
+    private Reminder() {
+    }
 
-    public Reminder(Timestamp appointmentDate, int userId, String message)
-    {
+    public Reminder(Timestamp appointmentDate, int userId, String message) {
         this.appointmentDate = appointmentDate;
         this.creationDate = Timestamp.valueOf(LocalDateTime.now());
         this.userId = userId;

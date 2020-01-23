@@ -43,7 +43,13 @@ public class VKManager {
             return;
         }
         try {
-            vkCore.getVk().messages().send(vkCore.getActor()).peerId(peerId).message(msg).execute();
+            vkCore.getVk()
+                    .messages()
+                    .send(vkCore.getActor())
+                    .peerId(peerId)
+                    .message(msg)
+                    .randomId(VKServer.getRandomId())
+                    .execute();
         } catch (ApiException | ClientException e) {
             e.printStackTrace();
         }

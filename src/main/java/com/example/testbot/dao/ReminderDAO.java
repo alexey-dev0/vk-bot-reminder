@@ -40,7 +40,7 @@ public class ReminderDAO {
 
     @SuppressWarnings("unchecked")
     public List<Reminder> findAll() {
-        return (List<Reminder>)  HibernateSessionFactoryUtil.getSessionFactory()
+        return (List<Reminder>) HibernateSessionFactoryUtil.getSessionFactory()
                 .openSession()
                 .createQuery("From Reminder")
                 .list();

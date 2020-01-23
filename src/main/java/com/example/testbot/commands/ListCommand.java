@@ -4,10 +4,6 @@ import com.example.testbot.VKManager;
 import com.example.testbot.VKServer;
 import com.vk.api.sdk.objects.messages.Message;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 public class ListCommand extends Command {
     public ListCommand(String name) {
         super(name);
@@ -31,6 +27,6 @@ public class ListCommand extends Command {
         }
         if (n == 0) sb.append("У вас нет напоминаний");
 
-        new VKManager().sendMessage(sb.toString(), message.getUserId());
+        new VKManager().sendMessage(sb.toString(), message.getPeerId());
     }
 }
