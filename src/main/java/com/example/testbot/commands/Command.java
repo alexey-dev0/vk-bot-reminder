@@ -6,9 +6,11 @@ public abstract class Command {
 
     private final String name;
 
+
     Command(String name) {
         this.name = name;
     }
+
 
     /**
      * Метод, который будет вызываться для исполнения команды
@@ -28,17 +30,18 @@ public abstract class Command {
         return name.equals(message.split(" ")[0]);
     }
 
+
     /**
      * Возвращает строку в формате:<br>
      * name: имяКоманды<br>
      *
      * @return форматированное имя и мод команды
      */
-
     @Override
     public String toString() {
         return String.format("name: %s", this.name);
     }
+
 
     /**
      * Берет хэш-код значащего поля {@link #name}
@@ -49,6 +52,7 @@ public abstract class Command {
     public int hashCode() {
         return this.name.hashCode();
     }
+
 
     /**
      * Объекты эквивалентны только, если поля <code>{@link #name}</code> равны

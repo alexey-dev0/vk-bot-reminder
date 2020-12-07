@@ -2,12 +2,16 @@ package com.example.testbot;
 
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
-import com.vk.api.sdk.objects.users.UserXtrCounters;
-import com.vk.api.sdk.queries.messages.MessagesSendQuery;
+
+import java.util.Random;
+import java.util.logging.Logger;
 
 public class VKManager {
 
     private static VKCore vkCore;
+    private static final Logger Log = Logger.getLogger(VKManager.class.getName());
+    private static final Random random = new Random();
+
 
     static {
         try {
@@ -17,45 +21,50 @@ public class VKManager {
         }
     }
 
-    /**
-     * Обращается к VK API и получает объект, описывающий пользователя.
-     *
-     * @param id идентификатор пользователя в VK
-     * @return {@link UserXtrCounters} информацию о пользователе
-     * @see UserXtrCounters
-     */
-    public static UserXtrCounters getUserInfo(int id) {
-        try {
-            return vkCore.getVk().users()
-                    .get(vkCore.getActor())
-                    .userIds(String.valueOf(id))
-                    .execute()
-                    .get(0);
-        } catch (ApiException | ClientException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
-    public void sendMessage(String msg, int peerId) {
+    public static void sendMessage(String msg, int peerId) {
         if (msg == null) {
-            System.out.println("null");
+            Log.warning("Сообщение пустое");
             return;
         }
         try {
-            vkCore.getVk()
+            Log.info("Отправка сообщения (".concat(msg).concat(")"));
+            var sentResult = vkCore.getVk()
                     .messages()
                     .send(vkCore.getActor())
                     .peerId(peerId)
                     .message(msg)
-                    .randomId(VKServer.getRandomId())
+                    .randomId(getRandomId())
                     .execute();
+
+            Log.info("Сообщение отправлено (".concat(sentResult.toString()).concat(")"));
         } catch (ApiException | ClientException e) {
             e.printStackTrace();
+            Log.warning("Ошибка при отправке: ".concat(e.getMessage()));
         }
     }
 
-    public MessagesSendQuery getSendQuery() {
-        return vkCore.getVk().messages().send(vkCore.getActor());
+
+    public static String getUserName(int userId) {
+        var result = "";
+        try {
+            result = vkCore.getVk()
+                    .users()
+                    .get(vkCore.getActor())
+                    .userIds(String.valueOf(userId))
+                    .execute()
+                    .get(0).getFirstName();
+        } catch (ApiException | ClientException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
+
+
+    public static int getRandomId() {
+        var millis = System.currentTimeMillis();
+        var randomLong = random.nextLong();
+        return (int) (millis + randomLong);
+    }
+
 }

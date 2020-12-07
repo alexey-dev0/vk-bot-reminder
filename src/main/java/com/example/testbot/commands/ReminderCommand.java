@@ -2,25 +2,30 @@ package com.example.testbot.commands;
 
 import com.example.testbot.VKManager;
 import com.example.testbot.VKServer;
+import com.example.testbot.models.Reminder;
 import com.vk.api.sdk.objects.messages.Message;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ReminderCommand extends Command {
 
+    private static final Logger Log = Logger.getLogger(ReminderCommand.class.getName());
     public ReminderCommand(String name) {
         super(name);
     }
+
 
     @Override
     public boolean check(String message) {
         return message.split(" ")[0].toLowerCase().equals("напомни");
     }
+
 
     private Timestamp makeTimestamp(int year, int month, int day, int hour, int minute) {
         Calendar cal = new GregorianCalendar();
@@ -34,6 +39,7 @@ public class ReminderCommand extends Command {
 
         return new Timestamp(cal.getTimeInMillis());
     }
+
 
     private void addNewReminder(Message message) throws IllegalArgumentException {
         final Pattern DATE_PATTERN = Pattern.compile("(([0-3][0-9]|[0-9])\\.([01][0-9]|[1-9])(.2[0-9]([2-9][0-9]|19))?)");
@@ -71,25 +77,34 @@ public class ReminderCommand extends Command {
         Timestamp appointmentDate = makeTimestamp(year, month, day, hour, minute);
         String msg = content.substring(msgIndex + 1);
 
-        var newReminder = new com.example.testbot.models.Reminder(appointmentDate, message.getPeerId(), msg);
-        System.out.println("Добавление напоминания в БД...");
+        var newReminder = new Reminder(appointmentDate, message.getPeerId(), msg);
+        Log.info("Добавление напоминания в БД...");
         VKServer.reminderService.saveReminder(newReminder);
     }
 
+
     @Override
     public void exec(Message message) {
+
         String answer;
+
         try {
-            System.out.println("Создание нового напоминания...");
+
+            Log.info("Создание нового напоминания...");
 
             addNewReminder(message);
 
-            System.out.println("Новое напоминание создано");
+            Log.info("Новое напоминание создано");
             answer = "Новое напоминание успешно создано.";
+
         } catch (IllegalArgumentException e) {
+
             e.printStackTrace();
             answer = "Неверный формат даты. Попробуйте ещё раз.";
+
         }
-        new VKManager().sendMessage(answer, message.getPeerId());
+
+        VKManager.sendMessage(answer, message.getPeerId());
+
     }
 }
