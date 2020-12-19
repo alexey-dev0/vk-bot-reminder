@@ -54,20 +54,36 @@ public class ReminderCommand extends Command {
             temp_date = matcherDate.group();
             msgIndex = matcherDate.end();
         }
-        if (temp_date == null) throw new IllegalArgumentException();
 
-        String[] date_words = temp_date.split("[.]");
-        int day = Integer.parseInt(date_words[0]);
-        int month = Integer.parseInt(date_words[1]);
-        int year;
-        if (date_words.length > 2) year = Integer.parseInt(date_words[2]);
-        else year = LocalDateTime.now().getYear();
+        int day, month, year;
+        if (temp_date == null) {
+
+            day = LocalDateTime.now().getDayOfMonth();
+            month = LocalDateTime.now().getMonthValue();
+            year = LocalDateTime.now().getYear();
+
+        } else {
+
+            String[] date_words = temp_date.split("[.]");
+
+            day = Integer.parseInt(date_words[0]);
+            month = Integer.parseInt(date_words[1]);
+
+            if (date_words.length > 2)
+                year = Integer.parseInt(date_words[2]);
+            else
+                year = LocalDateTime.now().getYear();
+
+        }
+
 
         Matcher matcherTime = TIME_PATTERN.matcher(content);
         String temp_time = "10:00";
         if (matcherTime.find()) {
+
             temp_time = matcherTime.group();
             msgIndex = Math.max(matcherTime.end(), msgIndex);
+
         }
 
         String[] time_words = temp_time.split(":");
@@ -78,6 +94,7 @@ public class ReminderCommand extends Command {
         String msg = content.substring(msgIndex + 1);
 
         var newReminder = new Reminder(appointmentDate, message.getPeerId(), msg);
+
         Log.info("Добавление напоминания в БД...");
         VKServer.reminderService.saveReminder(newReminder);
     }
